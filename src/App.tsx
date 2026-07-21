@@ -14,6 +14,7 @@ type FormState = {
   rating: number
   paymentMethod: string
   screenshot: File | null
+  whatsappNumber: string
 }
 
 type FormErrors = Partial<Record<keyof FormState, string>>
@@ -32,6 +33,7 @@ const initialState: FormState = {
   rating: 0,
   paymentMethod: 'upi',
   screenshot: null,
+  whatsappNumber: '',
 }
 
 const vibeCards = [
@@ -107,7 +109,49 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
           {selectedLead.screenshotBase64 && (
             <div style={{ marginTop: '1.5rem', borderTop: '2px dashed #ccc', paddingTop: '1.5rem' }}>
               <strong style={{ display: 'block', marginBottom: '1rem', fontSize: '1.1rem' }}>Payment Screenshot:</strong>
-              <img src={selectedLead.screenshotBase64} alt="Screenshot" style={{ display: 'block', maxWidth: '100%', maxHeight: '500px', border: '4px solid var(--ink)', borderRadius: '12px' }} />
+              <img src={selectedLead.screenshotBase64} alt="Screenshot" style={{ display: 'block', maxWidth: '100%', maxHeight: '500px', border: '4px solid var(--ink)', borderRadius: '12px', marginBottom: '1.5rem' }} />
+
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                <button 
+                  onClick={() => {
+                    const updated = leads.map(l => l.id === selectedLead.id ? { ...l, status: 'Approved' } : l)
+                    setLeads(updated)
+                    localStorage.setItem('wtd_leads', JSON.stringify(updated))
+                    setSelectedLead({ ...selectedLead, status: 'Approved' })
+                  }}
+                  style={{ flex: 1, padding: '0.8rem', background: selectedLead.status === 'Approved' ? 'var(--teal)' : '#eee', color: selectedLead.status === 'Approved' ? '#fff' : 'var(--ink)', border: '2px solid var(--ink)', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                  Approve
+                </button>
+                <button 
+                  onClick={() => {
+                    const updated = leads.map(l => l.id === selectedLead.id ? { ...l, status: 'Rejected' } : l)
+                    setLeads(updated)
+                    localStorage.setItem('wtd_leads', JSON.stringify(updated))
+                    setSelectedLead({ ...selectedLead, status: 'Rejected' })
+                  }}
+                  style={{ flex: 1, padding: '0.8rem', background: selectedLead.status === 'Rejected' ? 'var(--pink)' : '#eee', color: selectedLead.status === 'Rejected' ? '#fff' : 'var(--ink)', border: '2px solid var(--ink)', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                  Reject
+                </button>
+              </div>
+
+              {selectedLead.status === 'Approved' && selectedLead.whatsappNumber && (
+                <button
+                  onClick={() => {
+                    const message = encodeURIComponent(`Quack quack! 🦆\n\nYour payment is approved and your WhozTheDuck ticket is confirmed!\n\nName: ${selectedLead.firstName} ${selectedLead.lastName}\nTicket ID: ${selectedLead.id}\n\nSee you at the flock!`);
+                    window.open(`https://wa.me/${selectedLead.whatsappNumber.replace(/\D/g,'')}?text=${message}`, '_blank');
+                  }}
+                  style={{ width: '100%', padding: '1rem', background: '#25D366', color: '#fff', border: '3px solid var(--ink)', borderRadius: '12px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', transition: 'transform 0.2s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/>
+                  </svg>
+                  Send Ticket on WhatsApp
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -283,9 +327,29 @@ function App() {
     return nextErrors
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleNextStep5 = (e: React.FormEvent) => {
     e.preventDefault()
     const nextErrors = validateStep5()
+    setErrors(nextErrors)
+
+    if (Object.keys(nextErrors).length > 0) {
+      const firstErrorField = document.querySelector<HTMLElement>('[data-error-field]')
+      firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
+    setStep(6)
+  }
+
+  const validateStep6 = () => {
+    const nextErrors: FormErrors = {}
+    if (!form.whatsappNumber.trim() || form.whatsappNumber.length < 10) nextErrors.whatsappNumber = 'Please enter a valid WhatsApp number.' as any
+    return nextErrors
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const nextErrors = validateStep6()
     setErrors(nextErrors)
 
     if (Object.keys(nextErrors).length > 0) {
@@ -336,6 +400,7 @@ function App() {
       data.append('rating', String(form.rating))
       if (form.screenshot) data.append('screenshot', form.screenshot)
       data.append('paymentMethod', form.paymentMethod)
+      data.append('whatsappNumber', form.whatsappNumber)
       data.append('_subject', 'New WhozTheDuck signup')
       data.append('_captcha', 'false')
       data.append('_template', 'table')
@@ -347,11 +412,11 @@ function App() {
 
       setTicketId(generatedId)
       setSubmitted(true)
-      setStep(6)
+      setStep(7)
     } catch (e) {
       console.error(e)
       setSubmitted(true)
-      setStep(6)
+      setStep(7)
     }
   }
 
@@ -580,7 +645,7 @@ function App() {
                   </div>
                 </form>
               ) : step === 5 ? (
-                <form onSubmit={handleSubmit} noValidate>
+                <form onSubmit={handleNextStep5} noValidate>
                   <h3 className="sec-title" style={{ fontSize: '1.6rem', textAlign: 'center' }}>Secure Payment</h3>
                   <div className="payment-options">
                     <div className="pay-option locked">
@@ -612,6 +677,22 @@ function App() {
 
                   <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                     <button type="button" className="submit-btn" style={{ background: '#eee', color: 'var(--ink)' }} onClick={() => setStep(4)}>Back</button>
+                    <button type="submit" className="submit-btn">Next</button>
+                  </div>
+                </form>
+              ) : step === 6 ? (
+                <form onSubmit={handleSubmit} noValidate>
+                  <h3 className="sec-title" style={{ fontSize: '1.6rem', textAlign: 'center' }}>Where should we send your ticket?</h3>
+                  <p style={{ textAlign: 'center', marginBottom: '1.5rem', fontWeight: 600, opacity: 0.8 }}>Your golden ticket will be sent to your WhatsApp once approved by our team.</p>
+                  
+                  <div className={`field ${errors.whatsappNumber ? 'bad' : ''}`} data-error-field={errors.whatsappNumber ? true : undefined}>
+                    <label className="f-label" htmlFor="whatsappNumber">WhatsApp Number <small>*</small></label>
+                    <input type="tel" id="whatsappNumber" name="whatsappNumber" placeholder="+91 96868 74348" value={form.whatsappNumber} onChange={handleChange} />
+                    {errors.whatsappNumber && <p className="err">{errors.whatsappNumber}</p>}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                    <button type="button" className="submit-btn" style={{ background: '#eee', color: 'var(--ink)' }} onClick={() => setStep(5)}>Back</button>
                     <button type="submit" className="submit-btn">Complete Registration</button>
                   </div>
                 </form>
