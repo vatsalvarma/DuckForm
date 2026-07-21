@@ -699,31 +699,12 @@ function App() {
               ) : null
             ) : (
               <div className="done show">
-                <div className="ticket-wrapper">
-                  <div className="ticket">
-                    <div className="ticket-header">
-                      WhozTheDuck 5
-                    </div>
-                    <div className="ticket-body">
-                      <div className="ticket-row">
-                        <span className="ticket-label">Name</span>
-                        <span className="ticket-value">{form.firstName} {form.lastName}</span>
-                      </div>
-                      <div className="ticket-row">
-                        <span className="ticket-label">Ticket ID</span>
-                        <span className="ticket-value">{ticketId}</span>
-                      </div>
-                      <div className="barcode"></div>
-                      <div className="ticket-row" style={{ borderBottom: 'none', flexDirection: 'column', gap: '0.3rem', alignItems: 'center', textAlign: 'center', marginTop: '0.5rem' }}>
-                        <span className="ticket-label" style={{ color: 'var(--ink)' }}>Need help?</span>
-                        <span className="ticket-value" style={{ fontSize: '0.9rem' }}>Contact Admin at +91 96868 74348</span>
-                      </div>
-                    </div>
-                    <div className="ticket-footer">
-                      See you at the flock! 🦆
-                    </div>
-                  </div>
-                </div>
+                <svg className="duck-inline" aria-hidden="true" style={{ width: '80px', height: '80px', marginBottom: '1.5rem', animation: 'bob 2s infinite' }}><use href="#duck" /></svg>
+                <h3 className="sec-title" style={{ fontSize: '1.8rem', textAlign: 'center' }}>Quack-tastic! 🦆</h3>
+                <p style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 600, marginTop: '1rem', lineHeight: 1.5 }}>
+                  We have received your payment screenshot.<br/><br/>
+                  Our team is reviewing it. Once approved, your golden ticket will be sent directly to your WhatsApp!
+                </p>
               </div>
             )}
           </div>
