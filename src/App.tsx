@@ -136,11 +136,16 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
                 </button>
               </div>
 
-              {selectedLead.status === 'Approved' && selectedLead.whatsappNumber && (
+              {selectedLead.status === 'Approved' && (
                 <button
                   onClick={() => {
+                    const number = selectedLead.whatsappNumber || selectedLead.phone || '';
+                    if (!number) {
+                       alert('No contact number available for this lead.');
+                       return;
+                    }
                     const message = encodeURIComponent(`Quack quack! 🦆\n\nYour payment is approved and your WhozTheDuck ticket is confirmed!\n\nName: ${selectedLead.firstName} ${selectedLead.lastName}\nTicket ID: ${selectedLead.id}\n\nSee you at the flock!`);
-                    window.open(`https://wa.me/${selectedLead.whatsappNumber.replace(/\D/g,'')}?text=${message}`, '_blank');
+                    window.open(`https://wa.me/${number.replace(/\D/g,'')}?text=${message}`, '_blank');
                   }}
                   style={{ width: '100%', padding: '1rem', background: '#25D366', color: '#fff', border: '3px solid var(--ink)', borderRadius: '12px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', transition: 'transform 0.2s' }}
                   onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)' }}
