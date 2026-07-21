@@ -464,7 +464,16 @@ function App() {
                   {errors.over21 && <p className="err">{errors.over21}</p>}
                 </div>
 
-                <button type="submit" className="submit-btn">Next</button>
+                {form.over21 === 'No' ? (
+                  <div className="locked-btn-wrapper">
+                    <button type="button" className="submit-btn locked-btn" disabled>
+                      Next
+                    </button>
+                    <p className="locked-msg">Sorry, you must be 21+ to join the flock!</p>
+                  </div>
+                ) : (
+                  <button type="submit" className="submit-btn">Next</button>
+                )}
               </form>
               ) : step === 2 ? (
                 <form onSubmit={handleNextStep2} noValidate>
@@ -532,7 +541,7 @@ function App() {
                         {form.rating > 0 ? (
                           <img 
                             key={form.rating}
-                            src={`/${form.rating}star.png`} 
+                            src={`${import.meta.env.BASE_URL}${form.rating}star.png`} 
                             alt={`${form.rating} star duck`}
                             className="duck-rating-img"
                           />

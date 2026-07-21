@@ -344,6 +344,40 @@ footer { background: var(--ink); color: var(--paper); text-align: center; paddin
   100% { transform: scale(1); opacity: 1; }
 }
 
+.locked-btn-wrapper {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+.locked-btn {
+  background: #e0e0e0 !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+  border-color: #999 !important;
+  box-shadow: none !important;
+  position: relative;
+  overflow: hidden;
+}
+.locked-btn::before {
+  content: '🔒';
+  margin-right: 8px;
+}
+.locked-btn:hover {
+  animation: lock-shake 0.4s ease-in-out;
+}
+.locked-msg {
+  color: var(--pink);
+  font-weight: 800;
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+  animation: reveal 0.3s ease-out;
+}
+
+@keyframes lock-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px) rotate(-2deg); }
+  40%, 80% { transform: translateX(6px) rotate(2deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
