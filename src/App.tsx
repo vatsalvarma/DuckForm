@@ -198,7 +198,6 @@ function App() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitted, setSubmitted] = useState(false)
   const [step, setStep] = useState(1)
-  const [ticketId, setTicketId] = useState('')
 
   useEffect(() => {
     const revealItems = document.querySelectorAll<HTMLElement>('.reveal')
@@ -415,7 +414,6 @@ function App() {
         body: data,
       }).catch(err => console.error(err)) // silent catch
 
-      setTicketId(generatedId)
       setSubmitted(true)
       setStep(7)
     } catch (e) {
