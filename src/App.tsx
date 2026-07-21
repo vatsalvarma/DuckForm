@@ -144,7 +144,7 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
 }
 
 function App() {
-  const [view, setView] = useState<'home' | 'admin'>('home')
+  const [view, setView] = useState<'home' | 'admin'>(() => window.location.search.includes('admin=true') ? 'admin' : 'home')
   const [form, setForm] = useState<FormState>(initialState)
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitted, setSubmitted] = useState(false)
@@ -392,7 +392,7 @@ function App() {
         <h1>
           Whoz<svg className="duck-inline" aria-hidden="true"><use href="#duck" /></svg>The<br />Duck
         </h1>
-        <div className="edition">Edition — 5</div>
+        <div className="edition"> 3.0 </div>
         <p className="hero-sub">No stage. No pressure. Just good people, loud laughs, and one very confident duck. Pull up, mingle, belong.</p>
         <a className="hero-cta" href="#join">Join the flock ↓</a>
       </header>
